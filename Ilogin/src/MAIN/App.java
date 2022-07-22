@@ -50,45 +50,67 @@ public class App {
     private void loginApp() throws IncorrectPasswordException, TooShortIDException {
         int intentos = 3;
         int res = 0;
-        do{
-            String id = entradaString("Nombre de usuario:");
-            String password = entradaString("Contraseña:");
-            User aux = new User(id,password);
-            if(DAO.login(aux)==2){
-                res=2;
-                System.out.println("[+]Successful");
-            }
-            else if (DAO.login(aux)==1){
-                res=1;
-                System.err.println("Incorrect password");
-            }
-            else{
-                res=0;
-                System.err.println("Account doesn't exist");
-            }
-            intentos--;
+        do {
+            try {
+                String id = entradaString("Nombre de usuario:");
+                String password = entradaString("Contraseña:");
+                User aux = new User(id, password);
+                if (DAO.login(aux) == 2) {
+                    res = 2;
+                    System.out.println("[+]Successful");
+                } else if (DAO.login(aux) == 1) {
+                    res = 1;
+                    System.err.println("Incorrect password");
+                } else {
+                    res = 0;
+                    System.err.println("Account doesn't exist");
+                }
+                
+            } 
+             catch (IncorrectPasswordException ex) {
+                 System.err.println("Incorrect id or password");
+             } catch (TooShortIDException ex) {
+                 System.err.println("Incorrect id or password");
+             }
+             intentos--;
+
         }while(res != 2 && intentos != 0);
         if(intentos == 0){
-            System.err.println("Demasiados intentos...");
+            System.err.println("Too much trys...");
         }
 
     
     }
 
     private void registerApp() throws IncorrectPasswordException, TooShortIDException {
-        String id = entradaString("Nombre de usuario:");
-        String password = entradaString("Contraseña:");
-        String confirm_password = entradaString("Confirmar contraseña:");
-        User aux = new User(id,password);
-        if(password.equals(confirm_password)) {
-            if (DAO.register(aux)) {
-                System.out.println("Registered");
+        boolean Registered = false;
+        do {
+            try {
+            String id = entradaString("Nombre de usuario:");
+            String password = entradaString("Contraseña:");
+            String confirm_password = entradaString("Confirmar contraseña:");
+            User aux = new User(id, password);
+            
+            if (password.equals(confirm_password)) {
+                if (DAO.register(aux)) {
+                    System.out.println("Registered");
+                    Registered = true;
+                } else {
+                    System.out.println("Already exist");
+                }
             } else {
-                System.out.println("Already exist");
+                System.out.println("La contraseña no coincide");
             }
-        }else{
-            System.out.println("La contraseña no coincide");
-        }
+            } catch (TooShortIDException ex) {
+                String message = ex.getMessage();
+                System.out.println(message);
+            } catch (IncorrectPasswordException es){
+                String message = es.getMessage();
+                System.out.println(message);
+            }
+        } while (!Registered);
+
+
     }
 
     private void removeAcc() throws IncorrectPasswordException, TooShortIDException {
