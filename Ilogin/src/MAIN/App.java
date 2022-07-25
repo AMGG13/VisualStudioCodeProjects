@@ -133,8 +133,9 @@ public class App {
 
     private int entradaInt(String phrase) {
         System.out.print(phrase);
-        Scanner ent = new Scanner(System.in);
+        try (Scanner ent = new Scanner(System.in)) {
             return ent.nextInt();
+        }
     }
 
     private String entradaString(String phrase) {
