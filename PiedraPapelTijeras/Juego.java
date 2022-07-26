@@ -9,7 +9,15 @@ public class Juego {
       "Tijeras gana Papel";
   private static final byte PUNTOS_MAXIMOS = 3;
   private static final String EL_JUEGO_A_EMPEZADO = "-----EL JUEGO HA EMPEZADO-----";
-  private static final String TIRA_JUGADOR = "P para piedra, L para papel, T para tijera\n";
+  private static final String TIRA_JUGADOR = "P para piedra, L para papel, T para tijera o S para SALIR\n";
+  private static final char PIEDRA = 'P';
+  private static final char PAPEL = 'L';
+  private static final char TIJERA = 'T';
+  private static final char SALIR = 'S';
+  private static final byte EMPATE = 0;
+  private static final byte GANA_JUGADOR = 1;
+  private static final byte GANA_BOT = 2;
+  private static final char[] JUGADAS = {PIEDRA,PAPEL,TIJERA,SALIR};
 
   private static final byte AVISO_TIRAR= 2;
   public static void main(String[] args) {
@@ -25,24 +33,38 @@ public class Juego {
     do {
       jugador = tiradaDelJugador();
       bot = tiradaDelBot();
-      mostrarJugada(jugador, bot);
-      byte rondaGanada = decidirGanador(jugador,bot);
-      if(rondaGanada == 1){
-        puntosJugador++;
-      }else if(rondaGanada==2){
-        puntosBot++;
-      } else {
-        System.out.println("\tEMPATE");
-      }
-      mostrarMarcador(puntosJugador, puntosBot);
-      if(puntosJugador==PUNTOS_MAXIMOS||puntosBot==PUNTOS_MAXIMOS){
+      if (jugador == SALIR) {
         finish = true;
-        victoria = puntosJugador > puntosBot;
       }
+      else if(bot == SALIR){
+        finish = true;
+      }
+      else {
+        mostrarJugada(jugador, bot);
+        byte rondaGanada = decidirGanador(jugador, bot);
+        if (rondaGanada == GANA_JUGADOR) {
+          puntosJugador++;
+        } else if (rondaGanada == GANA_BOT) {
+          puntosBot++;
+        } else {
+          System.out.println("\tEMPATE");
+        }
+        mostrarMarcador(puntosJugador, puntosBot);
+        if (puntosJugador == PUNTOS_MAXIMOS || puntosBot == PUNTOS_MAXIMOS) {
+          finish = true;
+          victoria = puntosJugador > puntosBot;
+        }
+      }
+
     } while (!finish);
     if(victoria){
       System.out.println("Has ganado!!");
-    }else{
+    } else if (jugador == SALIR) {
+      System.out.println("Te has rendido...");
+    }else if(bot == SALIR){
+      System.out.println("El BOT se ha rendido XDD");
+    }
+    else {
       System.out.println("Has perdido");
     }
   }
@@ -61,19 +83,33 @@ public class Juego {
   private static byte decidirGanador(char jugador, char bot) {
     byte jugada;
     if (jugador == bot) {
-      jugada = 0; //EMPATE
+      jugada = EMPATE; //EMPATE
     }
-    else if ((jugador == 'P' && bot == 'T') || (jugador == 'L' && bot == 'P') || (jugador == 'T' && bot == 'L')) {
-      jugada = 1;//JUGADOR GANA
+    else if ((jugador == PIEDRA && bot == TIJERA) || (jugador == PAPEL && bot == PIEDRA) || (jugador == TIJERA && bot == PAPEL)) {
+      jugada = GANA_JUGADOR;//JUGADOR GANA
     }
     else {
-      jugada = 2; //BOT GANA
+      jugada = GANA_BOT; //BOT GANA
     }
     return jugada;
   }
 
-  private static void mostrarJugada(char jugador, char bot) {
+  private static void mostrarJugada(char player, char ia) {
+    String jugador = charToString(player);
+    String bot = charToString(ia);
     System.out.println("(Tú): "+jugador+" / "+bot+" :(Bot)");
+  }
+
+  private static String charToString(char player) {
+    String aux = null;
+    if(player == PIEDRA){
+      aux = "PIEDRA";
+    }else if(player == PAPEL){
+      aux = "PAPEL";
+    } else if (player == TIJERA) {
+      aux = "TIJERA";
+    }
+    return aux;
   }
 
   private static char tiradaDelJugador() {
@@ -85,31 +121,31 @@ public class Juego {
       System.out.print("Tira:");
       tirada = ent.nextLine().charAt(0);
       if (intentos > AVISO_TIRAR) {
-        System.err.println("Tienes que tirar P(Piedra), L(PAPEL) o T(TIJERAS)...");
+        System.err.println("Tienes que tirar P(Piedra), L(PAPEL) , T(TIJERAS) o S(SALIR)...");
       }
       tirada = Character.toUpperCase(tirada);
       intentos++;
-    } while (tirada != 'P'&& tirada != 'L' && tirada != 'T');
+    } while (tirada != PIEDRA && tirada != PAPEL && tirada != TIJERA && tirada != SALIR);
     System.out.println();
     return tirada;
   }
 
   private static char tiradaDelBot() {
-    double r = 1 + Math.random() * 3;
+    double r = 1 + Math.random() * JUGADAS.length ;
     int random = (int) r;
     char tirada;
     switch (random) {
       case 1:
-        tirada = 'P';
+        tirada = PIEDRA;
         break;
       case 2:
-        tirada = 'L';
+        tirada = PAPEL;
         break;
       case 3:
-        tirada = 'T';
+        tirada = TIJERA;
         break;
       default:
-        tirada = '?';
+        tirada = SALIR;
         break;
     }
     return tirada;
