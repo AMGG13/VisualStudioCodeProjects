@@ -3,7 +3,7 @@ public class App {
 
     public static void main(String[] args) throws Exception {
         String password = new String("");
-        int lenghtPassword = 8;
+        int lenghtPassword = 99999;
         //＜＞
         password = createPassword(password, lenghtPassword);
         System.out.println(password);
